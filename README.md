@@ -1,5 +1,6 @@
 # Dependencies
-You need to download shodan with pip install shodan or easy_install shodan.<br />
+You need to install shodan with pip install shodan or easy_install shodan.<br />
+You need to install python-nmap with pip install python-nmap.<br />
 You need to set your API Key in the 'constantes.py' file.
 
 # Options

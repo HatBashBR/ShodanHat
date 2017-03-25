@@ -1,1 +1,0 @@
-SHODAN_API_KEY = "" #Define your API Key

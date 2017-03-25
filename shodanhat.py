@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import optparse, shodan, sys
+import optparse, shodan, sys, nmap
 from constantes import *
 
 def banner():
@@ -26,15 +26,30 @@ def printInfo(host):
 	print "Latitude: %s"%host["latitude"]
 	print "Longitude: %s"%host["longitude"]
 	print "City: %s"%host["city"]
-	print "Ports: "
-	for item in host["data"]:
-		print "  [+] %s"%item["port"]
+	if options.nmap:
+		ports = ""
+		for item in host["data"]:
+			if item == host["data"][-1]:
+				ports += str(item["port"])
+			else:
+				ports += str(item["port"])+","
+		nm.scan(host["ip_str"], ports)
+		print "Ports: "
+		for port in nm[host["ip_str"]]["tcp"]:
+			print "  [+] %s\t%s %s %s"%(port, nm[host["ip_str"]]["tcp"][port]["product"], nm[host["ip_str"]]["tcp"][port]["version"], nm[host["ip_str"]]["tcp"][port]["extrainfo"])
+	else:
+		print "Ports: "
+		for item in host["data"]:
+			print "  [+] %s"%item["port"]
+	
 
 parser = optparse.OptionParser()
-parser.add_option("-i", "--ip", dest="ip", help="Info about one host", default="")
-parser.add_option("-l", "--list", dest="list", help="Info about a list of hosts", default="")
+parser.add_option("-i", "--ip", dest="ip", help="info about one host", default="")
+parser.add_option("-l", "--list", dest="list", help="info about a list of hosts", default="")
 parser.add_option("-s", "--sq", dest="sq", help="searchquery string", default="")
+parser.add_option("--nmap", dest="nmap", action="store_true", help="perform a nmap scan in the hosts")
 options, args = parser.parse_args()
+
 
 if SHODAN_API_KEY == "":
 	print "You need to set the API Key in the file 'constantes.py'"
@@ -45,6 +60,7 @@ if options.ip != "" and options.list != "":
 	sys.exit()
 
 api = shodan.Shodan(SHODAN_API_KEY)
+nm = nmap.PortScanner()
 
 try:
 	if options.ip != "":	

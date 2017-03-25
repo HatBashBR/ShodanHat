@@ -5,10 +5,11 @@ You need to set your API Key in the 'constantes.py' file.
 
 # Options
 -h, --help            show this help message and exit<br />
--i IP, --ip=IP        Info about one host<br />
--l LIST, --list=LIST  Info about a list of hosts<br />
+-i IP, --ip=IP        info about one host<br />
+-l LIST, --list=LIST  info about a list of hosts<br />
 -s SQ, --sq=SQ        searchquery string<br />
---nmap                perform a nmap scan in the hosts
+--nmap                perform a nmap scan in the hosts<br />
+--setkey=SETKEY		  set your api key automatically
 
 # Usage
 <em>For One Host<em><br />

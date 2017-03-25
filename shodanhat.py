@@ -48,11 +48,16 @@ parser.add_option("-i", "--ip", dest="ip", help="info about one host", default="
 parser.add_option("-l", "--list", dest="list", help="info about a list of hosts", default="")
 parser.add_option("-s", "--sq", dest="sq", help="searchquery string", default="")
 parser.add_option("--nmap", dest="nmap", action="store_true", help="perform a nmap scan in the hosts")
+parser.add_option("--setkey", dest="setkey", help="set your api key automatically", default="")
 options, args = parser.parse_args()
 
+if options.setkey != "":
+	f = open("constantes.py", 'w')
+	f.write('SHODAN_API_KEY = "%s"'%options.setkey)
+	SHODAN_API_KEY = options.setkey
 
 if SHODAN_API_KEY == "":
-	print "You need to set the API Key in the file 'constantes.py'"
+	print "You need to set the API Key in the file 'constantes.py' or with the '--setkey' option"
 	sys.exit()
 	
 if options.ip != "" and options.list != "":

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import optparse, shodan, sys, nmap
+import optparse, shodan, sys, nmap, urllib2, json
 from constantes import *
 
 def banner():
@@ -19,6 +19,27 @@ def banner():
 	print ""
 banner()
 
+hosts = {}
+
+def searchExploits(ip, port):
+	if hosts[ip][port][0] == "" or hosts[ip][port][1] == "":
+		print "    [-] No exploits could be found"
+	else:
+		query = "%s %s"%(hosts[ip][port][0], hosts[ip][port][1])
+		query = query.replace(" ", "+")
+		url = urllib2.urlopen("https://exploits.shodan.io/api/search?query=%s&key=%s"%(query, SHODAN_API_KEY))
+		xpls = json.load(url)
+		if xpls["total"] > 0:
+			print "    Possible Exploits:"
+			for i in xpls["matches"]:
+				if i.has_key("cve"):
+					for cve in i["cve"]:
+						print "    [+] %s"%cve
+				elif i.has_key("_id"):
+					print "    [+] ID: %s"%i["_id"]
+		else:
+			print "    [-] No exploits could be found"
+
 def printInfo(host):
 	print "IP: %s"%host["ip_str"]
 	print "Organization: %s"%host.get("org", "n/a")
@@ -27,6 +48,7 @@ def printInfo(host):
 	print "Longitude: %s"%host["longitude"]
 	print "City: %s"%host["city"]
 	if options.nmap:
+		hosts[host["ip_str"]] = {}
 		ports = ""
 		for item in host["data"]:
 			if item == host["data"][-1]:
@@ -36,11 +58,14 @@ def printInfo(host):
 		nm.scan(host["ip_str"], ports)
 		print "Ports: "
 		for port in nm[host["ip_str"]]["tcp"]:
+			hosts[host["ip_str"]][port] = [nm[host["ip_str"]]["tcp"][port]["product"],nm[host["ip_str"]]["tcp"][port]["version"]]
 			print "  [+] %s\t%s %s %s"%(port, nm[host["ip_str"]]["tcp"][port]["product"], nm[host["ip_str"]]["tcp"][port]["version"], nm[host["ip_str"]]["tcp"][port]["extrainfo"])
+			searchExploits(host["ip_str"], port)
 	else:
 		print "Ports: "
 		for item in host["data"]:
 			print "  [+] %s"%item["port"]
+	
 	
 
 parser = optparse.OptionParser()
@@ -85,7 +110,7 @@ try:
 			print service['ip_str']
 except shodan.APIError as e:
 	print "Error: "+str(e)
-except IOError:
-	print "We can't open you list of hosts!"
+except IOError as e:
+	print "Error: "+str(e)
 except Exception as e:
 	print "Error: "+str(e)

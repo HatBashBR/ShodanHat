@@ -34,7 +34,7 @@ def searchExploits(ip, port):
 			for i in xpls["matches"]:
 				if i.has_key("cve"):
 					for cve in i["cve"]:
-						print "    [+] %s"%cve
+						print "    [+] CVE: %s"%cve
 				elif i.has_key("_id"):
 					print "    [+] ID: %s"%i["_id"]
 		else:
@@ -55,20 +55,12 @@ def printInfo(host):
 				ports += str(item["port"])
 			else:
 				ports += str(item["port"])+","
-		args = ""
-		if options.sS:
-			args += "-sS "
-		elif options.sT:
-			args += "-sT"
-		elif options.sU:
-			args += "-sU"
-			
+		
+		args = options.scantype
 		nm.scan(str(host["ip_str"]), ports, arguments=args)
-		print nm.command_line()
 		if str(host["ip_str"]) in nm.all_hosts():
 			print "Ports: "
 			for port in nm[str(host["ip_str"])]["tcp"]:
-				print "asdasd"
 				hosts[host["ip_str"]][port] = [nm[host["ip_str"]]["tcp"][port]["product"],nm[host["ip_str"]]["tcp"][port]["version"]]
 				print "  [+] %s\t%s %s %s"%(port, nm[host["ip_str"]]["tcp"][port]["product"], nm[host["ip_str"]]["tcp"][port]["version"], nm[host["ip_str"]]["tcp"][port]["extrainfo"])
 				searchExploits(host["ip_str"], port)
@@ -89,9 +81,12 @@ parser.add_option("-l", "--list", dest="list", help="info about a list of hosts"
 parser.add_option("-s", "--sq", dest="sq", help="searchquery string", default="")
 parser.add_option("--nmap", dest="nmap", action="store_true", help="perform a nmap scan in the hosts")
 parser.add_option("--setkey", dest="setkey", help="set your api key automatically", default="")
-parser.add_option("--sS", dest="sS", action="store_true", help="TCP Syn Scan")
-parser.add_option("--sT", dest="sT", action="store_true", help="TCP Connect Scan")
-parser.add_option("--sU", dest="sU", action="store_true", help="UDP Scan")
+group = optparse.OptionGroup(parser, "NMap Options")
+group.add_option("--sS", dest="scantype", action="store_const", help="TCP Syn Scan", const="-sS")
+group.add_option("--sT", dest="scantype", action="store_const", help="TCP Connect Scan", const="-sT")
+group.add_option("--sU", dest="scantype", action="store_const", help="UDP Scan", const="-sU")
+parser.add_option_group(group)
+parser.set_defaults(scantype="-sT")
 options, args = parser.parse_args()
 
 if options.setkey != "":
@@ -101,10 +96,6 @@ if options.setkey != "":
 
 if SHODAN_API_KEY == "":
 	print "You need to set the API Key in the file 'constantes.py' or with the '--setkey' option"
-	sys.exit()
-
-if(not options.nmap) and (options.sS or options.sT or options.sU):
-	print "You can't use nmap args without the '--nmap' options!"
 	sys.exit()
 	
 if options.ip != "" and options.list != "":

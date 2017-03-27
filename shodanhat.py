@@ -48,19 +48,34 @@ def printInfo(host):
 	print "Longitude: %s"%host["longitude"]
 	print "City: %s"%host["city"]
 	if options.nmap:
-		hosts[host["ip_str"]] = {}
+		hosts[str(host["ip_str"])] = {}
 		ports = ""
 		for item in host["data"]:
 			if item == host["data"][-1]:
 				ports += str(item["port"])
 			else:
 				ports += str(item["port"])+","
-		nm.scan(host["ip_str"], ports)
-		print "Ports: "
-		for port in nm[host["ip_str"]]["tcp"]:
-			hosts[host["ip_str"]][port] = [nm[host["ip_str"]]["tcp"][port]["product"],nm[host["ip_str"]]["tcp"][port]["version"]]
-			print "  [+] %s\t%s %s %s"%(port, nm[host["ip_str"]]["tcp"][port]["product"], nm[host["ip_str"]]["tcp"][port]["version"], nm[host["ip_str"]]["tcp"][port]["extrainfo"])
-			searchExploits(host["ip_str"], port)
+		args = ""
+		if options.sS:
+			args += "-sS "
+		elif options.sT:
+			args += "-sT"
+		elif options.sU:
+			args += "-sU"
+			
+		nm.scan(str(host["ip_str"]), ports, arguments=args)
+		print nm.command_line()
+		if str(host["ip_str"]) in nm.all_hosts():
+			print "Ports: "
+			for port in nm[str(host["ip_str"])]["tcp"]:
+				print "asdasd"
+				hosts[host["ip_str"]][port] = [nm[host["ip_str"]]["tcp"][port]["product"],nm[host["ip_str"]]["tcp"][port]["version"]]
+				print "  [+] %s\t%s %s %s"%(port, nm[host["ip_str"]]["tcp"][port]["product"], nm[host["ip_str"]]["tcp"][port]["version"], nm[host["ip_str"]]["tcp"][port]["extrainfo"])
+				searchExploits(host["ip_str"], port)
+		else:
+			print "Ports: "
+			for item in host["data"]:
+				print "  [+] %s"%item["port"]
 	else:
 		print "Ports: "
 		for item in host["data"]:
@@ -74,6 +89,9 @@ parser.add_option("-l", "--list", dest="list", help="info about a list of hosts"
 parser.add_option("-s", "--sq", dest="sq", help="searchquery string", default="")
 parser.add_option("--nmap", dest="nmap", action="store_true", help="perform a nmap scan in the hosts")
 parser.add_option("--setkey", dest="setkey", help="set your api key automatically", default="")
+parser.add_option("--sS", dest="sS", action="store_true", help="TCP Syn Scan")
+parser.add_option("--sT", dest="sT", action="store_true", help="TCP Connect Scan")
+parser.add_option("--sU", dest="sU", action="store_true", help="UDP Scan")
 options, args = parser.parse_args()
 
 if options.setkey != "":
@@ -83,6 +101,10 @@ if options.setkey != "":
 
 if SHODAN_API_KEY == "":
 	print "You need to set the API Key in the file 'constantes.py' or with the '--setkey' option"
+	sys.exit()
+
+if(not options.nmap) and (options.sS or options.sT or options.sU):
+	print "You can't use nmap args without the '--nmap' options!"
 	sys.exit()
 	
 if options.ip != "" and options.list != "":
@@ -102,15 +124,11 @@ try:
 			host = api.host(ip)
 			printInfo(host)
 			print
-			
+
 	if options.sq != "":
 		result = api.search(options.sq)
 		print "##### IP's that match the query '%s' #####"%options.sq
 		for service in result['matches']:
 			print service['ip_str']
-except shodan.APIError as e:
-	print "Error: "+str(e)
-except IOError as e:
-	print "Error: "+str(e)
 except Exception as e:
 	print "Error: "+str(e)

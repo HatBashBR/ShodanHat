@@ -19,7 +19,7 @@ def banner():
 	print "╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   "
 	print ""
 	print "Author: Everton a.k.a XGU4RD14N && Mateus a.k.a Dctor"
-	print "Members HatBashBR: Junior a.k.a ASTAROTH, Johnny a.k.a UrdSys, No One, Geovane"
+	print "Members HatBashBR: Johnny a.k.a UrdSys, Evelyn a.k.a Alyosha, Geovane"
 	print "fb.com/hatbashbr"
 	print "github.com/hatbashbr" + colors.END
 	print ""

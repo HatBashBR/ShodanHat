@@ -22,6 +22,7 @@ def banner():
 	print "Members HatBashBR: Johnny a.k.a UrdSys, Evelyn a.k.a Alyosha, Geovane"
 	print "fb.com/hatbashbr"
 	print "github.com/hatbashbr" + colors.END
+	print colors.YELLOW + "[!] Legal Disclaimer: We aren't responsible for bad use of this tool!" + colors.END
 	print ""
 banner()
 

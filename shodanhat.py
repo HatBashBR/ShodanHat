@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import optparse, shodan, sys, nmap, urllib2, json, os
+import optparse, shodan, sys, nmap, urllib.request, urllib.error, urllib.parse, json, os
 from constantes import *
 
 class colors:
@@ -11,19 +10,19 @@ class colors:
     END = '\033[0m'
 
 def banner():
-	print colors.GREEN + "███████╗██╗  ██╗ ██████╗ ██████╗  █████╗ ███╗   ██╗██╗  ██╗ █████╗ ████████╗"
-	print "██╔════╝██║  ██║██╔═══██╗██╔══██╗██╔══██╗████╗  ██║██║  ██║██╔══██╗╚══██╔══╝"
-	print "███████╗███████║██║   ██║██║  ██║███████║██╔██╗ ██║███████║███████║   ██║   "
-	print "╚════██║██╔══██║██║   ██║██║  ██║██╔══██║██║╚██╗██║██╔══██║██╔══██║   ██║   "
-	print "███████║██║  ██║╚██████╔╝██████╔╝██║  ██║██║ ╚████║██║  ██║██║  ██║   ██║   "
-	print "╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   "
-	print ""
-	print "Author: Everton a.k.a XGU4RD14N && Mateus a.k.a Dctor"
-	print "Members HatBashBR: Johnny a.k.a UrdSys, Evelyn a.k.a Alyosha, Geovane"
-	print "fb.com/hatbashbr"
-	print "github.com/hatbashbr" + colors.END
-	print colors.YELLOW + "[!] Legal Disclaimer: We aren't responsible for bad use of this tool!" + colors.END
-	print ""
+	print(colors.GREEN + "███████╗██╗  ██╗ ██████╗ ██████╗  █████╗ ███╗   ██╗██╗  ██╗ █████╗ ████████╗")
+	print("██╔════╝██║  ██║██╔═══██╗██╔══██╗██╔══██╗████╗  ██║██║  ██║██╔══██╗╚══██╔══╝")
+	print("███████╗███████║██║   ██║██║  ██║███████║██╔██╗ ██║███████║███████║   ██║   ")
+	print("╚════██║██╔══██║██║   ██║██║  ██║██╔══██║██║╚██╗██║██╔══██║██╔══██║   ██║   ")
+	print("███████║██║  ██║╚██████╔╝██████╔╝██║  ██║██║ ╚████║██║  ██║██║  ██║   ██║   ")
+	print("╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ")
+	print("")
+	print("Author: Everton a.k.a XGU4RD14N && Mateus a.k.a Dctor")
+	print("Members HatBashBR: Johnny a.k.a UrdSys, Evelyn a.k.a Alyosha, Geovane")
+	print("fb.com/hatbashbr")
+	print("github.com/hatbashbr" + colors.END)
+	print(colors.YELLOW + "[!] Legal Disclaimer: We aren't responsible for bad use of this tool!" + colors.END)
+	print("")
 banner()
 
 hosts = {}
@@ -51,38 +50,38 @@ def saveExploits(ip, port, o):
 	else:
 		query = "%s %s"%(hosts[ip][port][0], hosts[ip][port][1])
 		query = query.replace(" ", "+")
-		url = urllib2.urlopen("https://exploits.shodan.io/api/search?query=%s&key=%s"%(query, SHODAN_API_KEY))
+		url = urllib.request.urlopen("https://exploits.shodan.io/api/search?query=%s&key=%s"%(query, SHODAN_API_KEY))
 		xpls = json.load(url)
 		if xpls["total"] > 0:
 			o.write("    Possible Exploits:\n")
 			for i in xpls["matches"]:
-				if i.has_key("cve"):
+				if "cve" in i:
 					for cve in i["cve"]:
 						o.write("    [+] CVE: %s\n"%cve)
-				elif i.has_key("_id"):
+				elif "_id" in i:
 					o.write("    [+] ID: %s\n"%i["_id"])
 		else:
 			o.write("    [-] No exploits could be found\n")
 
 def searchExploits(ip, port):
 	if hosts[ip][port][0] == "" or hosts[ip][port][1] == "":
-		print colors.FAIL + "    [-] No exploits could be found" + colors.END
+		print(colors.FAIL + "    [-] No exploits could be found" + colors.END)
 	else:
 		query = "%s %s"%(hosts[ip][port][0], hosts[ip][port][1])
 		query = query.replace(" ", "+")
-		url = urllib2.urlopen("https://exploits.shodan.io/api/search?query=%s&key=%s"%(query, SHODAN_API_KEY))
+		url = urllib.request.urlopen("https://exploits.shodan.io/api/search?query=%s&key=%s"%(query, SHODAN_API_KEY))
 		xpls = json.load(url)
 		if xpls["total"] > 0:
-			print colors.GREEN +"    Possible Exploits:"
+			print(colors.GREEN +"    Possible Exploits:")
 			for i in xpls["matches"]:
-				if i.has_key("cve"):
+				if "cve" in i:
 					for cve in i["cve"]:
-						print "    [+] CVE: %s"%cve
-				elif i.has_key("_id"):
-					print "    [+] ID: %s"%i["_id"]
-			print colors.END,
+						print("    [+] CVE: %s"%cve)
+				elif "_id" in i:
+					print("    [+] ID: %s"%i["_id"])
+			print(colors.END, end=' ')
 		else:
-			print colors.FAIL + "    [-] No exploits could be found" + colors.END
+			print(colors.FAIL + "    [-] No exploits could be found" + colors.END)
 
 def saveInfo(host, o):
 	o.write("IP: %s\n"%host["ip_str"])
@@ -97,7 +96,7 @@ def saveInfo(host, o):
 	else:
 		for i in host["hostnames"]:
 			o.write("  [+] %s\n"%str(i))
-	if host.has_key('vulns'):
+	if 'vulns' in host:
 		o.write("Vulnerabilities:\n")
 		for i in host["vulns"]:
 			o.write("  [+] %s\n"%str(i))
@@ -121,29 +120,29 @@ def saveInfo(host, o):
 		else:
 			o.write("Ports:\n")
 			for item in host["data"]:
-				print o.write("  [+] %s\n"%item["port"])
+				print(o.write("  [+] %s\n"%item["port"]))
 	else:
 		o.write("Ports:\n")
 		for item in host["data"]:
 			o.write("  [+] %s\n"%item["port"])
 
 def printInfo(host):
-	print colors.GREEN + "IP: %s"%host["ip_str"]
-	print "Organization: %s"%host.get("org", "n/a")
-	print "Operating System: %s"%host.get("os", "n/a")
-	print "Latitude: %s"%host["latitude"]
-	print "Longitude: %s"%host["longitude"]
-	print "City: %s"%host["city"]
-	print "Hostnames:"
+	print(colors.GREEN + "IP: %s"%host["ip_str"])
+	print("Organization: %s"%host.get("org", "n/a"))
+	print("Operating System: %s"%host.get("os", "n/a"))
+	print("Latitude: %s"%host["latitude"])
+	print("Longitude: %s"%host["longitude"])
+	print("City: %s"%host["city"])
+	print("Hostnames:")
 	if len(host["hostnames"]) == 0:
-		print colors.FAIL + "  [-] No hostnames" + colors.END + colors.GREEN
+		print(colors.FAIL + "  [-] No hostnames" + colors.END + colors.GREEN)
 	else:
 		for i in host["hostnames"]:
-			print "  [+] " + i
-	if host.has_key('vulns'):
-		print "Vulnerabilities:"
+			print("  [+] " + i)
+	if 'vulns' in host:
+		print("Vulnerabilities:")
 		for i in host["vulns"]:
-			print "  [+] " +i
+			print("  [+] " +i)
 			
 	if options.nmap:
 		hosts[str(host["ip_str"])] = {}
@@ -157,20 +156,20 @@ def printInfo(host):
 		args = options.scantype
 		nm.scan(str(host["ip_str"]), ports, arguments=args)
 		if str(host["ip_str"]) in nm.all_hosts():
-			print "Ports: "
+			print("Ports: ")
 			for port in nm[str(host["ip_str"])]["tcp"]:
 				hosts[host["ip_str"]][port] = [nm[host["ip_str"]]["tcp"][port]["product"],nm[host["ip_str"]]["tcp"][port]["version"]]
-				print colors.GREEN + "  [+] %s\t%s %s %s"%(port, nm[host["ip_str"]]["tcp"][port]["product"], nm[host["ip_str"]]["tcp"][port]["version"], nm[host["ip_str"]]["tcp"][port]["extrainfo"]) + colors.END
+				print(colors.GREEN + "  [+] %s\t%s %s %s"%(port, nm[host["ip_str"]]["tcp"][port]["product"], nm[host["ip_str"]]["tcp"][port]["version"], nm[host["ip_str"]]["tcp"][port]["extrainfo"]) + colors.END)
 				searchExploits(host["ip_str"], port)
 		else:
-			print "Ports: "
+			print("Ports: ")
 			for item in host["data"]:
-				print colors.GREEN + "  [+] %s"%item["port"] + colors.END
+				print(colors.GREEN + "  [+] %s"%item["port"] + colors.END)
 	else:
-		print "Ports: "
+		print("Ports: ")
 		for item in host["data"]:
-			print colors.GREEN + "  [+] %s"%item["port"] + colors.END
-	print colors.END,
+			print(colors.GREEN + "  [+] %s"%item["port"] + colors.END)
+	print(colors.END, end=' ')
 	
 	
 
@@ -196,11 +195,11 @@ if options.setkey != "":
 	SHODAN_API_KEY = options.setkey
 
 if SHODAN_API_KEY == "":
-	print "You need to set the API Key in the file 'constantes.py' or with the '--setkey' option"
+	print("You need to set the API Key in the file 'constantes.py' or with the '--setkey' option")
 	sys.exit()
 	
 if options.ip != "" and options.list != "":
-	print "You can't use '-i' with '-l'!"
+	print("You can't use '-i' with '-l'!")
 	sys.exit()
 
 api = shodan.Shodan(SHODAN_API_KEY)
@@ -209,19 +208,19 @@ nm = nmap.PortScanner()
 if options.output != "":
 	if os.path.isfile(options.output):
 		try:
-			ans = str(raw_input(colors.FAIL + "[-] File already exists, if you continue it will erase all the content of the file. continue? (y/N): " + colors.END))
+			ans = str(input(colors.FAIL + "[-] File already exists, if you continue it will erase all the content of the file. continue? (y/N): " + colors.END))
 			if ans != "y" and ans != "Y":
-				print colors.GREEN + "[+] Exiting..." + colors.END
+				print(colors.GREEN + "[+] Exiting..." + colors.END)
 				sys.exit()
 		except SyntaxError:
-			print colors.GREEN + "[+] Exiting..." + colors.END
+			print(colors.GREEN + "[+] Exiting..." + colors.END)
 			sys.exit()
 	o = open(options.output, 'w')
 
 if options.ip != "":
 	if options.output != "":
 		try:
-			print colors.GREEN + "[+] Writing host's info to the file" + colors.END
+			print(colors.GREEN + "[+] Writing host's info to the file" + colors.END)
 			host = api.host(options.ip)
 			saveInfo(host, o)
 		except Exception as e:
@@ -231,12 +230,12 @@ if options.ip != "":
 			host = api.host(options.ip)
 			printInfo(host)
 		except Exception as e:
-			print colors.FAIL + "[-] "+ str(options.ip) +"\n  Error: "+str(e) + colors.END
-			print
+			print(colors.FAIL + "[-] "+ str(options.ip) +"\n  Error: "+str(e) + colors.END)
+			print()
 elif options.list != "":
 	f = open(options.list)
 	if options.output != "":
-		print colors.GREEN + "[+] Writing hosts' info to the file" + colors.END
+		print(colors.GREEN + "[+] Writing hosts' info to the file" + colors.END)
 		for ip in f.readlines():
 			try:
 				host = api.host(ip)
@@ -249,28 +248,28 @@ elif options.list != "":
 			try:
 				host = api.host(ip)
 				printInfo(host)
-				print
+				print()
 			except Exception as e:
-				print colors.FAIL + "[-] "+ str(options.ip) +"\n  Error: "+str(e) + colors.END
-				print
+				print(colors.FAIL + "[-] "+ str(options.ip) +"\n  Error: "+str(e) + colors.END)
+				print()
 elif options.range != "":
 	first = options.range.split('-')[0]
 	second = options.range.split('-')[1]
 	
 	#Verify if is a valid range
 	if len(first.split('.')) != 4 or len(second.split('.')) != 4:
-		print "[-] Invalid range! see the help to use the --range option."
+		print("[-] Invalid range! see the help to use the --range option.")
 		sys.exit()
 	
 	#Verify if is a valid IP
 	for i in first.split('.'):
 		if int(i) > 255:
-			print "[-] Invalid IP! see the help to use the --range option."
+			print("[-] Invalid IP! see the help to use the --range option.")
 			sys.exit()
 			
 	for i in second.split('.'):
 		if int(i) > 255:
-			print "[-] Invalid IP! see the help to use the --range option."
+			print("[-] Invalid IP! see the help to use the --range option.")
 			sys.exit()
 			
 	firstSplited = first.split('.')
@@ -279,13 +278,13 @@ elif options.range != "":
 	secondSum = int(secondSplited[0])+int(secondSplited[1])+int(secondSplited[2])+int(secondSplited[3])
 	
 	if(firstSum >= secondSum):
-		print "[-] Invalid range! see the help to use the --range option."
+		print("[-] Invalid range! see the help to use the --range option.")
 		sys.exit()
 	
 	iprange = ipRange(first, second)
 	
 	if options.output != "":
-		print colors.GREEN + "[+] Writing hosts' info to the file" + colors.END
+		print(colors.GREEN + "[+] Writing hosts' info to the file" + colors.END)
 		for ip in iprange:
 			try:
 				host = api.host(ip)
@@ -298,22 +297,22 @@ elif options.range != "":
 			try:
 				host = api.host(ip)
 				printInfo(host)
-				print
+				print()
 			except Exception as e:
-				print colors.FAIL + "[-] "+ str(ip) +"\n  Error: "+str(e) + colors.END
-				print
+				print(colors.FAIL + "[-] "+ str(ip) +"\n  Error: "+str(e) + colors.END)
+				print()
 if options.sq != "":
 	try:
 		result = api.search(options.sq)
 		if options.output != "":
-			print colors.GREEN + "[+] Writing query results to the file" + colors.END
+			print(colors.GREEN + "[+] Writing query results to the file" + colors.END)
 			o.write("##### IP's that match the query '%s' #####\n"%options.sq)
 		else:
-			print "##### IP's that match the query '%s' #####"%options.sq
+			print("##### IP's that match the query '%s' #####"%options.sq)
 		for service in result['matches']:
 			if options.output != "":
 				o.write(service['ip_str']+"\n")
 			else:
-				print service['ip_str']
+				print(service['ip_str'])
 	except Exception as e:
-		print "Error: "+str(e)
+		print("Error: "+str(e))
